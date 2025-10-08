@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CARE-BFF System Architecture Diagram</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .layer {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .layer h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            text-align: center;
+            background: #3498db;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .component {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .component:hover {
+            transform: translateX(5px);
+        }
+        
+        .component.auth { border-left-color: #e74c3c; }
+        .component.graphql { border-left-color: #e91e63; }
+        .component.business { border-left-color: #9c27b0; }
+        .component.data { border-left-color: #2196f3; }
+        .component.external { border-left-color: #ff9800; }
+        .component.infra { border-left-color: #4caf50; }
+        
+        .component-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+        
+        .component-desc {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+        
+        .flow-arrows {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0;
+        }
+        
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #3498db;
+            margin: 0 10px;
+        }
+        
+        .arrow.horizontal {
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 20px solid #3498db;
+            border-right: none;
+        }
+        
+        .data-flow {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .external-services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .service-card {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .service-card h4 {
+            color: #856404;
+            margin: 0 0 10px 0;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .tech-category {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border-top: 4px solid #3498db;
+        }
+        
+        .tech-category h4 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+        
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .tech-list li {
+            padding: 4px 0;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .tech-list li:before {
+            content: "▸ ";
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .deployment-info {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .deployment-info h3 {
+            color: #155724;
+            margin-top: 0;
+        }
+        
+        .env-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .env-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 4px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CARE-BFF System Architecture</h1>
+        <p class="subtitle">Backend for Frontend - SmarTone Customer Care Application</p>
+        
+        <!-- Main Architecture Diagram -->
+        <div class="architecture-diagram">
+            <!-- Client Layer -->
+            <div class="layer">
+                <h3>Client Layer</h3>
+                <div class="component auth">
+                    <div class="component-name">Mobile App</div>
+                    <div class="component-desc">iOS/Android SmarTone Care App</div>
+                </div>
+                <div class="component auth">
+                    <div class="component-name">Web Portal</div>
+                    <div class="component-desc">Customer web interface</div>
+                </div>
+                <div class="component auth">
+                    <div class="component-name">API Clients</div>
+                    <div class="component-desc">Third-party integrations</div>
+                </div>
+            </div>
+            
+            <!-- BFF Layer -->
+            <div class="layer">
+                <h3>Backend for Frontend (BFF)</h3>
+                
+                <!-- API Gateway -->
+                <div class="component graphql">
+                    <div class="component-name">Apollo GraphQL Server</div>
+                    <div class="component-desc">GraphQL API gateway with Express.js</div>
+                </div>
+                
+                <!-- Authentication -->
+                <div class="component auth">
+                    <div class="component-name">Authentication Module</div>
+                    <div class="component-desc">JWT, OAuth, 2FA, Biometric auth</div>
+                </div>
+                
+                <!-- Business Logic Modules -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
+                    <div class="component business">
+                        <div class="component-name">Account (acct)</div>
+                        <div class="component-desc">User account management</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Auth</div>
+                        <div class="component-desc">Authentication & authorization</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Bill</div>
+                        <div class="component-desc">Billing & payments</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Core</div>
+                        <div class="component-desc">Core utilities & services</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Home</div>
+                        <div class="component-desc">Dashboard & home screen</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Membership</div>
+                        <div class="component-desc">Customer membership</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Offer</div>
+                        <div class="component-desc">Promotions & offers</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Plan</div>
+                        <div class="component-desc">Service plans</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Usage</div>
+                        <div class="component-desc">Data/voice usage</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Travel</div>
+                        <div class="component-desc">Roaming services</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Tips</div>
+                        <div class="component-desc">Customer tips & guides</div>
+                    </div>
+                    <div class="component business">
+                        <div class="component-name">Caring Service</div>
+                        <div class="component-desc">Customer support</div>
+                    </div>
+                </div>
+                
+                <!-- Middleware -->
+                <div class="component data">
+                    <div class="component-name">Middleware Layer</div>
+                    <div class="component-desc">CORS, Security, Logging, Rate Limiting</div>
+                </div>
+                
+                <!-- Caching -->
+                <div class="component data">
+                    <div class="component-name">Redis Cache</div>
+                    <div class="component-desc">Session storage & caching</div>
+                </div>
+            </div>
+            
+            <!-- Backend Services -->
+            <div class="layer">
+                <h3>Backend Services</h3>
+                <div class="component external">
+                    <div class="component-name">SmarTone Core APIs</div>
+                    <div class="component-desc">
+                        care.smartone.com<br>
+                        • /jsp/SmarToneCARE/Internal/API_*<br>
+                        • Authentication, Profile, Billing<br>
+                        • Network Services, Usage APIs
+                    </div>
+                </div>
+                <div class="component external">
+                    <div class="component-name">Salesforce CRM</div>
+                    <div class="component-desc">
+                        login.salesforce.com<br>
+                        • /services/oauth2/token<br>
+                        • /services/apexrest/Rest/getAccountId<br>
+                        • Customer Data Management
+                    </div>
+                </div>
+                <div class="component external">
+                    <div class="component-name">MuleSoft APIs</div>
+                    <div class="component-desc">
+                        muleapi.hksmartone.com:8443<br>
+                        • Integration Hub<br>
+                        • Data Transformation<br>
+                        • Service Orchestration
+                    </div>
+                </div>
+                <div class="component external">
+                    <div class="component-name">Tyk API Gateway</div>
+                    <div class="component-desc">
+                        tykapi.hksmartone.com<br>
+                        • API Management & Security<br>
+                        • Rate Limiting & Analytics<br>
+                        • Multiple Auth Tokens (ICP, Insider, OM)
+                    </div>
+                </div>
+                <div class="component external">
+                    <div class="component-name">Call Guard API</div>
+                    <div class="component-desc">
+                        wapi2.smartone.com<br>
+                        • /callscreeningapi/PostpaidCallScrnInterface<br>
+                        • GetSubscriptionStatus<br>
+                        • Whitelist Management
+                    </div>
+                </div>
+                <div class="component external">
+                    <div class="component-name">CMS System</div>
+                    <div class="component-desc">
+                        care-cms.cms:3000<br>
+                        • /api/globals/*<br>
+                        • /api/smart-answers<br>
+                        • Content & Configuration
+                    </div>
+                </div>
+                <div class="component external">
+                    <div class="component-name">Registration Service</div>
+                    <div class="component-desc">
+                        push.smartone.com<br>
+                        • Device Registration<br>
+                        • Push Notification Management<br>
+                        • App Provisioning
+                    </div>
+                </div>
+                <div class="component external">
+                    <div class="component-name">Redis Cache</div>
+                    <div class="component-desc">
+                        Azure Redis Cache<br>
+                        • smartone-ext-prod.redis.cache.windows.net<br>
+                        • Session & Token Storage<br>
+                        • Performance Caching
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Flow -->
+        <div class="data-flow">
+            <h3 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Request Flow</h3>
+            <div class="flow-step">
+                <div class="step-number">1</div>
+                <div>Client sends GraphQL query/mutation to Apollo Server</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">2</div>
+                <div>Apollo Server validates JWT token and user authorization</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">3</div>
+                <div>Request routed to appropriate resolver (auth, acct, bill, etc.)</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">4</div>
+                <div>Resolver calls corresponding function module for business logic</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">5</div>
+                <div>Function module checks Redis cache for cached data</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">6</div>
+                <div>If cache miss, function makes API call to external services</div>
+            </div>
+            <div class="flow-step">
+                <div class="step-number">7</div>
+                <div>Response processed, cached in Redis, and returned to client</div>
+            </div>
+        </div>
+        
+        <!-- External Services -->
+        <h3 style="color: #2c3e50; text-align: center;">External Service Integrations</h3>
+        <div class="external-services">
+            <div class="service-card">
+                <h4>SmarTone Core APIs</h4>
+                <p><strong>care.smartone.com</strong><br>
+                • /jsp/SmarToneCARE/Internal/API_* endpoints<br>
+                • Authentication, billing, usage, profile management<br>
+                • Network services and customer data</p>
+            </div>
+            <div class="service-card">
+                <h4>Salesforce CRM</h4>
+                <p><strong>login.salesforce.com</strong><br>
+                • /services/oauth2/token - OAuth authentication<br>
+                • /services/apexrest/Rest/getAccountId - Account lookup<br>
+                • Customer relationship and contact management</p>
+            </div>
+            <div class="service-card">
+                <h4>MuleSoft Integration</h4>
+                <p><strong>muleapi.hksmartone.com:8443</strong><br>
+                • Enterprise integration platform<br>
+                • Data transformation and routing<br>
+                • Service orchestration layer</p>
+            </div>
+            <div class="service-card">
+                <h4>Tyk API Gateway</h4>
+                <p><strong>tykapi.hksmartone.com</strong><br>
+                • API management and security<br>
+                • Multiple authentication tokens (ICP, Insider, OM, CorpBiz)<br>
+                • Rate limiting and analytics</p>
+            </div>
+            <div class="service-card">
+                <h4>Call Guard Service</h4>
+                <p><strong>wapi2.smartone.com</strong><br>
+                • /callscreeningapi/PostpaidCallScrnInterface<br>
+                • GetSubscriptionStatus, whitelist management<br>
+                • /download/sticker/servlet - Sticker downloads</p>
+            </div>
+            <div class="service-card">
+                <h4>CMS System</h4>
+                <p><strong>care-cms.cms:3000</strong><br>
+                • /api/globals/* - Global configurations<br>
+                • /api/smart-answers - Knowledge base<br>
+                • Content management for mobile app</p>
+            </div>
+            <div class="service-card">
+                <h4>Registration Service</h4>
+                <p><strong>push.smartone.com</strong><br>
+                • Device registration and provisioning<br>
+                • Push notification management<br>
+                • Mobile app authentication</p>
+            </div>
+            <div class="service-card">
+                <h4>Azure Redis Cache</h4>
+                <p><strong>smartone-ext-prod.redis.cache.windows.net</strong><br>
+                • Session storage and JWT token caching<br>
+                • Performance optimization layer<br>
+                • User preference and state management</p>
+            </div>
+        </div>
+        
+        <!-- Technology Stack -->
+        <h3 style="color: #2c3e50; text-align: center;">Technology Stack</h3>
+        <div class="tech-stack">
+            <div class="tech-category">
+                <h4>Backend Framework</h4>
+                <ul class="tech-list">
+                    <li>Node.js 18.20.3</li>
+                    <li>TypeScript</li>
+                    <li>Express.js</li>
+                    <li>Apollo GraphQL Server</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h4>Authentication</h4>
+                <ul class="tech-list">
+                    <li>JSON Web Tokens (JWT)</li>
+                    <li>Crypto for encryption</li>
+                    <li>RSA key pairs</li>
+                    <li>Two-factor authentication</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h4>Data & Caching</h4>
+                <ul class="tech-list">
+                    <li>Redis (Azure Cache)</li>
+                    <li>ioredis client</li>
+                    <li>In-memory caching</li>
+                    <li>Session management</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h4>GraphQL Tools</h4>
+                <ul class="tech-list">
+                    <li>@graphql-tools/merge</li>
+                    <li>@graphql-tools/load</li>
+                    <li>GraphQL schema loading</li>
+                    <li>Resolver merging</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h4>DevOps & Monitoring</h4>
+                <ul class="tech-list">
+                    <li>Docker containers</li>
+                    <li>Kubernetes deployment</li>
+                    <li>Azure Container Registry</li>
+                    <li>Nginx Ingress Controller</li>
+                    <li>TLS/SSL termination</li>
+                    <li>Dynatrace monitoring</li>
+                    <li>Log4js logging</li>
+                </ul>
+            </div>
+            <div class="tech-category">
+                <h4>Security & Middleware</h4>
+                <ul class="tech-list">
+                    <li>CORS protection</li>
+                    <li>Rate limiting</li>
+                    <li>Request validation</li>
+                    <li>Error handling</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Deployment Information -->
+        <div class="deployment-info">
+            <h3>Deployment & Infrastructure</h3>
+            <p>The CARE-BFF system is deployed across multiple environments with Kubernetes orchestration:</p>
+            <div class="env-grid">
+                <div class="env-card">
+                    <h4>UAT Environment</h4>
+                    <p>Port: 5000<br>
+                    Namespace: stcare-uat<br>
+                    Replicas: 2<br>
+                    Environment: UAT</p>
+                </div>
+                <div class="env-card">
+                    <h4>Staging Environment</h4>
+                    <p>Port: 5000<br>
+                    Namespace: stcare-stg<br>
+                    Environment: STG<br>
+                    Host: careuat.smartone.com</p>
+                </div>
+                <div class="env-card">
+                    <h4>Production Environment</h4>
+                    <p>Port: 5001<br>
+                    Namespace: bff / stcare<br>
+                    Replicas: 16<br>
+                    Host: care-api.smartone.com</p>
+                </div>
+                <div class="env-card">
+                    <h4>Container Registry</h4>
+                    <p>Azure Container Registry<br>
+                    smartone.azurecr.io<br>
+                    Version: 1.10.2</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GraphQL API Endpoints -->
+        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <h3 style="color: #2c3e50; text-align: center; margin-top: 0;">GraphQL API Endpoints & Backend Service Mapping</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 15px;">
+                
+                <!-- Authentication Module -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #e74c3c;">
+                    <h4 style="color: #e74c3c; margin-top: 0;">🔐 Authentication (auth)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getLoginResult → SmarTone Core APIs</li>
+                            <li>getSessionInfo → Redis Cache</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>loginWithPassword → SmarTone APIs + Salesforce</li>
+                            <li>loginWithOTP → SmarTone SMS Gateway</li>
+                            <li>refreshToken → Redis + JWT Service</li>
+                            <li>setBioToken → SmarTone Biometric API</li>
+                            <li>logout → Redis + Session Management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Account Management -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #3498db;">
+                    <h4 style="color: #3498db; margin-top: 0;">👤 Account (acct)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getAccountProfile → SmarTone Customer API</li>
+                            <li>getPpQualification → SmarTone Billing System</li>
+                            <li>getCustomerSavedCreditCard → Payment Gateway</li>
+                            <li>getThePointBalance → SmarTone Loyalty API</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>createAccountProfile → Registration Service</li>
+                            <li>updatePreference → CMS System</li>
+                            <li>resetPassword → SmarTone Auth API</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Billing Module -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #f39c12;">
+                    <h4 style="color: #f39c12; margin-top: 0;">💰 Billing (bill)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getBill → SmarTone Billing System</li>
+                            <li>getBillDetail → MuleSoft Integration</li>
+                            <li>getStatement → Document Management API</li>
+                            <li>getPaymentQRcodeDetails → Payment Gateway</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>payBill → Payment Processing API</li>
+                            <li>setupAutoPay → Banking Integration</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Usage Tracking -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #9b59b6;">
+                    <h4 style="color: #9b59b6; margin-top: 0;">📊 Usage (usage)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getUsage → SmarTone Network APIs</li>
+                            <li>getFamilyPlanAllocation → Family Plan Service</li>
+                            <li>getRoamingUsage → Roaming Service API</li>
+                            <li>getCallGuardStatus → Call Guard API</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>requestUsageTopUp → Top-up Service</li>
+                            <li>updateFamilyPlanSegregation → Plan Management</li>
+                            <li>updateRoamingService → Roaming API</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Travel & Roaming -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #1abc9c;">
+                    <h4 style="color: #1abc9c; margin-top: 0;">✈️ Travel (travel)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>Travel_getRoamingCountries → Tyk API Gateway</li>
+                            <li>Travel_getRoamingProduct → CMS System</li>
+                            <li>Travel_getPrepaidSimProducts → Product Catalog</li>
+                            <li>Travel_getRecommendedProducts → AI Recommendation</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>Travel_subscribeRoamingProduct → Subscription API</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Home Dashboard -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #e67e22;">
+                    <h4 style="color: #e67e22; margin-top: 0;">🏠 Home (home)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getHomeBanner → CMS System</li>
+                            <li>getSmartAnswer → Knowledge Base API</li>
+                            <li>getNoticeList → Notification Service</li>
+                            <li>getSurveyItem → Survey Platform</li>
+                            <li>getWidgetConfig → Configuration Service</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Offers & Promotions -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #e91e63;">
+                    <h4 style="color: #e91e63; margin-top: 0;">🎁 Offers (offer)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getOfferHighlightList → Promotion Engine</li>
+                            <li>getOfferDetail → CMS System</li>
+                            <li>getOfferEligibility → Eligibility Service</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>redeemOffer → Redemption Service</li>
+                            <li>subscribeOffer → Subscription API</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Customer Care -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #16a085;">
+                    <h4 style="color: #16a085; margin-top: 0;">🛠️ Caring Service</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>powerBankGetLocation → Location Service</li>
+                            <li>remoteQueueGetShopList → Queue Management</li>
+                            <li>contentTransferGetStatus → Transfer Service</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>powerBankRental → Rental Service</li>
+                            <li>remoteQueueJoin → Queue API</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tips & Content -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #8e44ad;">
+                    <h4 style="color: #8e44ad; margin-top: 0;">💡 Tips (tips)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getTipsList → CMS System</li>
+                            <li>getBookmark → User Preference API</li>
+                            <li>getTipsPreference → Personalization</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>addBookmark → Content Management</li>
+                            <li>updateTipsPreference → User Settings</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Membership -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #d35400;">
+                    <h4 style="color: #d35400; margin-top: 0;">🎖️ Membership</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getMembershipOfferLists → Loyalty Platform</li>
+                            <li>getEMembershipCard → Digital Wallet</li>
+                            <li>getVoucherList → Voucher Management</li>
+                            <li>getReservedOfferList → Reservation System</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>setReserveOffer → Booking Service</li>
+                            <li>setRedeemReservedOffer → Redemption API</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Plans -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #2980b9;">
+                    <h4 style="color: #2980b9; margin-top: 0;">📋 Plans (plan)</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getMobilePlan → Plan Catalog API</li>
+                            <li>getFBBPlan → Broadband Service</li>
+                            <li>getRetentionConfig → Retention System</li>
+                            <li>getDocumentList → Document Service</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Push Notifications -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #c0392b;">
+                    <h4 style="color: #c0392b; margin-top: 0;">🔔 App Push</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Query Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>getPnHistory → Notification History</li>
+                            <li>getPnTypeStatus → Push Settings</li>
+                        </ul>
+                        <strong>Mutation Endpoints:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>registerDevice → Device Registration</li>
+                            <li>setPnTypeStatus → Preference Management</li>
+                            <li>acknowledgePnClicked → Analytics API</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Persistent Storage Analysis -->
+        <div style="background: #f0f8ff; border: 1px solid #b3d9ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <h3 style="color: #1e3a8a; text-align: center; margin-top: 0;">Persistent Storage Architecture</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 15px;">
+                
+                <!-- Primary Storage: Redis -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #dc2626;">
+                    <h4 style="color: #dc2626; margin-top: 0;">🗄️ Primary Storage: Redis</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Azure Redis Cache (Production):</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>smartone-ext-prod.redis.cache.windows.net:6379</li>
+                            <li>Database 10 (PROD), Database 9 (STG)</li>
+                            <li>Managed Redis service with high availability</li>
+                        </ul>
+                        <strong>On-Premise Redis (UAT/STG):</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>Redis Sentinel cluster (3 nodes)</li>
+                            <li>TLS encryption with certificate validation</li>
+                            <li>redis-cluster.stcare-uat:6379/0</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Data Types Stored -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #059669;">
+                    <h4 style="color: #059669; margin-top: 0;">📋 Data Categories Stored</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Authentication Data:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>com.smc.care.bio.{bioToken} - Biometric tokens</li>
+                            <li>com.smc.care.refresh_token.{token} - Refresh tokens</li>
+                            <li>logged-out-access-token:{jwt} - Logout tracking</li>
+                            <li>login.captcha.{sessionId} - CAPTCHA validation</li>
+                        </ul>
+                        <strong>Session Management:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>com.smc.care.loginWithPasswdOtp.{token} - OTP sessions</li>
+                            <li>com.smc.care.two_step_verification.{date}_{user} - 2FA</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Caching Strategy -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #7c3aed;">
+                    <h4 style="color: #7c3aed; margin-top: 0;">⚡ Caching Strategy</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>CMS Content Caching (300s TTL):</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>cms.paymentMethods.{locale} - Payment methods</li>
+                            <li>cms.cover-banner-list - Home banners</li>
+                            <li>cms.smart-answer-topic-list - FAQ topics</li>
+                            <li>cms.flash-sale-list - Promotional content</li>
+                        </ul>
+                        <strong>Performance Optimization:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>API response caching for frequently accessed data</li>
+                            <li>Reduced backend API calls</li>
+                            <li>Improved mobile app performance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- File-Based Storage -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #ea580c;">
+                    <h4 style="color: #ea580c; margin-top: 0;">📁 File-Based Storage</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Configuration Files:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>config/app.config.json - Environment configurations</li>
+                            <li>config/log4js.config.json - Logging settings</li>
+                            <li>private.pem / public.pem - RSA key pairs</li>
+                            <li>smartoneca-sha256.crt - TLS certificates</li>
+                        </ul>
+                        <strong>Static Data:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>json/v0/*.json - Whitelists and static data</li>
+                            <li>logs/error.log - Application logging</li>
+                            <li>schemas/**/*.graphql - GraphQL schema definitions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Storage Patterns -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #0891b2;">
+                    <h4 style="color: #0891b2; margin-top: 0;">🔄 Storage Patterns</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>Key Naming Convention:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>careapp.{namespace}.{identifier} prefix</li>
+                            <li>com.smc.care.{module}.{data} structure</li>
+                            <li>Hierarchical organization by function</li>
+                        </ul>
+                        <strong>TTL Strategy:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>Authentication tokens: Variable (900s-7776000s)</li>
+                            <li>CMS content cache: 300 seconds</li>
+                            <li>CAPTCHA validation: 180 seconds</li>
+                            <li>Biometric tokens: No expiry (persistent)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Redundancy & Backup -->
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #be185d;">
+                    <h4 style="color: #be185d; margin-top: 0;">🔒 Redundancy & Security</h4>
+                    <div style="font-size: 0.9em;">
+                        <strong>High Availability Setup:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>Azure Redis: Built-in replication and failover</li>
+                            <li>On-premise: Redis Sentinel cluster (3 nodes)</li>
+                            <li>TLS encryption for data in transit</li>
+                        </ul>
+                        <strong>Security Measures:</strong>
+                        <ul style="margin: 5px 0; padding-left: 20px; color: #555;">
+                            <li>Encrypted connection strings with credentials</li>
+                            <li>Certificate-based authentication for on-premise</li>
+                            <li>Environment-specific database separation</li>
+                            <li>No direct external access to storage layer</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Storage Flow Diagram -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-top: 20px;">
+                <h4 style="color: #374151; margin-top: 0; text-align: center;">Data Flow & Storage Lifecycle</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="background: #fef3c7; padding: 10px; border-radius: 4px; text-align: center; flex: 1; min-width: 120px;">
+                        <strong>1. Request</strong><br>
+                        <small>Client sends GraphQL query/mutation</small>
+                    </div>
+                    <div style="color: #6b7280;">→</div>
+                    <div style="background: #ddd6fe; padding: 10px; border-radius: 4px; text-align: center; flex: 1; min-width: 120px;">
+                        <strong>2. Cache Check</strong><br>
+                        <small>Redis lookup for cached data</small>
+                    </div>
+                    <div style="color: #6b7280;">→</div>
+                    <div style="background: #fed7d7; padding: 10px; border-radius: 4px; text-align: center; flex: 1; min-width: 120px;">
+                        <strong>3. Backend Call</strong><br>
+                        <small>If cache miss, fetch from APIs</small>
+                    </div>
+                    <div style="color: #6b7280;">→</div>
+                    <div style="background: #d1fae5; padding: 10px; border-radius: 4px; text-align: center; flex: 1; min-width: 120px;">
+                        <strong>4. Cache Store</strong><br>
+                        <small>Store response in Redis with TTL</small>
+                    </div>
+                    <div style="color: #6b7280;">→</div>
+                    <div style="background: #bfdbfe; padding: 10px; border-radius: 4px; text-align: center; flex: 1; min-width: 120px;">
+                        <strong>5. Response</strong><br>
+                        <small>Return data to client</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Production Infrastructure Details -->
+        <div style="background: #e8f4fd; border: 1px solid #bee5eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <h3 style="color: #0c5460; margin-top: 0;">Production Infrastructure Configuration</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #17a2b8;">
+                    <h4>High Availability Setup</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>Replicas:</strong> 16 pods for production</li>
+                        <li><strong>CPU Limits:</strong> 1000m per pod</li>
+                        <li><strong>Memory Limits:</strong> 1536Mi per pod</li>
+                        <li><strong>Load Balancing:</strong> Nginx Ingress</li>
+                        <li><strong>Auto-scaling:</strong> Resource-based</li>
+                    </ul>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #28a745;">
+                    <h4>Network & Security</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>External URL:</strong> care-api.smartone.com</li>
+                        <li><strong>Internal URL:</strong> stcare.smartone.com</li>
+                        <li><strong>TLS/SSL:</strong> Enabled with certificates</li>
+                        <li><strong>Max Connections:</strong> 1000 per instance</li>
+                        <li><strong>Body Size Limit:</strong> 50MB</li>
+                    </ul>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107;">
+                    <h4>Service Endpoints</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>GraphQL:</strong> /care-bff/v0</li>
+                        <li><strong>Health Check:</strong> /</li>
+                        <li><strong>Apple App Association:</strong> /.well-known/apple-app-site-association</li>
+                        <li><strong>Port:</strong> 5001 (external), 5000 (on-prem)</li>
+                    </ul>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #6610f2;">
+                    <h4>Container & Registry</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>Registry:</strong> smartone.azurecr.io</li>
+                        <li><strong>Image:</strong> smartone/care-bff:1.10.2</li>
+                        <li><strong>On-Prem Registry:</strong> aptzharbor02.hksmartone.com</li>
+                        <li><strong>Pull Policy:</strong> Always</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                <span>Authentication</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e91e63;"></div>
+                <span>GraphQL Layer</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9c27b0;"></div>
+                <span>Business Logic</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2196f3;"></div>
+                <span>Data Layer</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff9800;"></div>
+                <span>External Services</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4caf50;"></div>
+                <span>Infrastructure</span>
+            </div>
+        </div>
+        
+        <!-- Architecture Patterns -->
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2c3e50; text-align: center;">Key Architecture Patterns</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #3498db;">
+                    <h4>Backend for Frontend (BFF)</h4>
+                    <p>Tailored API layer specifically designed for the SmarTone Care mobile and web applications, aggregating data from multiple backend services.</p>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #9c27b0;">
+                    <h4>GraphQL Federation</h4>
+                    <p>Unified GraphQL schema combining multiple domain-specific schemas (auth, billing, usage, etc.) into a single API endpoint.</p>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #e74c3c;">
+                    <h4>Microservices Integration</h4>
+                    <p>Orchestrates calls to various microservices and external APIs, providing a consistent interface for client applications.</p>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #2196f3;">
+                    <h4>Caching Strategy</h4>
+                    <p>Redis-based caching for session management, JWT tokens, and frequently accessed data to improve performance and reduce backend load.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
