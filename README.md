@@ -310,3 +310,27 @@ spec:
 5. Configure auto-scaling based on metrics
 6. Implement backup and disaster recovery procedures
 
+```mermaid
+flowchart TD
+    subgraph LAN
+      MM(Mac mini<br>Docker/K8s host)
+      MB(MacBook<br>VS Code/SSH)
+      IP(iPad<br>SSH/Browser)
+      PC(PC<br>VS Code/Browser)
+      MM <-- SSH/VSCode/HTTP --> MB
+      MM <-- SSH/HTTP --> IP
+      MM <-- SSH/VSCode/HTTP --> PC
+    end
+    subgraph Optional
+      DNS(Local DNS/dnsmasq)
+      DNS -- Assigns dev domains --> MM
+      MB -- Uses dev domains --> DNS
+      IP -- Uses dev domains --> DNS
+      PC -- Uses dev domains --> DNS
+    end
+    subgraph Remote
+      VPN(VPN Tunnel)
+      VPN -- Secure Access --> MM
+    end
+```
+
